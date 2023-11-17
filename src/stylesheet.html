@@ -1,0 +1,128 @@
+<style>
+:root {
+  --w5-color: #cdcdcd;
+  --border-grey:     #dbdbdb;
+  --disable-grey:    #e7e7e7;
+  --dinner-grey:     #f3f3f3;
+  --background-grey: #fefefe;
+}
+
+/* style */
+html,body {
+  /*overflow: hidden;*/
+}
+
+body {
+  background-color: var(--background-grey);
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border-color: var(--border-grey);
+  border-style: solid;
+}
+
+th {
+  background-color: var(--border-grey);
+  text-align: center;
+}
+
+#main-table td {
+  vertical-align: top;
+}
+
+td.redips-mark {
+  background-color: var(--disable-grey);
+}
+
+.redips-dinner {
+  background-color: var(--dinner-grey);
+}
+
+#modal-table td.schedule {
+  border-color: red;
+  border-style: solid;
+  background-color: #FFCCCC;
+}
+
+.evaluate {
+  color: red;
+}
+
+#modal-is-evaluate > div,
+#modal-groups > div {
+  display: flex;
+  align-items: center;
+}
+
+#sheets div {
+  border-color: red;
+  border-style: solid;
+}
+
+/* boxing size */
+html,body{padding:0;border:0;margin:0;display:block;width:100%;height:100%;}
+
+#my-redips {
+  /*margin: 1px;*/
+}
+
+#main-table,
+#modal-table {
+  width: 100%;
+}
+
+th, td {
+  border-width: 2px;
+}
+
+#main-table th,
+#modal-table th {
+  width: 5%;
+}
+
+#main-table td,
+#modal-table td {
+  width: 10%;
+}
+
+#main-table td:not(.full) {
+  padding-bottom: 20px;
+}
+
+#modal-table td {
+  padding-left: 5px;
+}
+
+#modal-table td.schedule {
+  border-width: 3px;
+}
+
+.redips-drag {
+  margin: 3px 5px;
+  border-width: 0;
+}
+
+.redips-drag span {
+  margin-left: 3px;
+}
+
+#modal-is-evaluate > div,
+#modal-groups > div {
+  height: 38px;
+  margin-left: 5px;
+}
+
+#modal-groups a {
+  margin-right: 10px;
+}
+
+#sheets div {
+  border-width: 1px;
+  border-radius: 5px;
+}
+
+</style>
