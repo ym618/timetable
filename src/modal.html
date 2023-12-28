@@ -5,7 +5,7 @@ const Modal = function (view) {
   view.modal.input = {};
   let sid    = view.modal.input.sid    = $('#modal-student-id input');
   let sName  = view.modal.input.sName  = $('#modal-student-name input');
-  let isEval = view.modal.input.isEval = $('#modal-is-evaluate input');
+  let evaluate = view.modal.input.evaluate = $('#modal-is-evaluate input');
   let groups = view.modal.input.groups = $('#modal-groups .circular');
 
   let onApprove = {
@@ -35,14 +35,23 @@ const Modal = function (view) {
         });
 
         if (!isExist && view.main.table.divs[sid.val()].length > 0) {
-          const newDiv = view.main.table.createDiv(new Student(view.main.table.divs[sid.val()][0].text()));
-          newDiv.addClass('tmpSchedule');
-          view.main.table.divs[sid.val()].push(newDiv);
-          view.main.table.tds[period.weekday-1][period.period-1].append(newDiv);
-          if (index >= 3) tds[period.weekday-1][period.period-1].addClass('full');
+          const student = new Student(view.main.table.divs[sid.val()][0].text());
 
-          console.log(period, view.main.table.tds[period.weekday-1][period.period-1])
-          //period.save();
+          // main
+          const newMainDiv = view.main.table.createDiv(student);
+          newMainDiv.addClass('tmpSchedule');
+
+          view.main.table.divs[sid.val()].push(newMainDiv);
+
+          const td = view.main.table.tds[period.weekday-1][period.period-1];
+          td.append(newMainDiv);
+          (new JQueryTd(td)).save();
+          if (index >= 3) td.addClass('full');
+
+          // modal
+          const newModalDiv = view.modal.table.createDiv(student);
+          view.modal.table.divs[sid.val()].push(newModalDiv);
+          view.modal.table.tds[period.weekday-1][period.period-1].append(newModalDiv);
         }
       });
 
@@ -79,7 +88,7 @@ const Modal = function (view) {
         $('.ui.modal div.header').text('編輯個案');
         sid.val(target.sid).prop('disabled', true);
         sName.val(target.name);
-        isEval.prop('checked', target.evaluate);
+        evaluate.prop('checked', target.evaluate);
         setGroup(target.group);
 
         view.main.table.divs[target.sid].forEach(function (div, index) {
@@ -94,7 +103,7 @@ const Modal = function (view) {
         $('.ui.modal div.header').text('新增個案');
         sid.val('');
         sName.val('');
-        isEval.prop('checked', false);
+        evaluate.prop('checked', false);
         groups.addClass('empty');
 
         setSchedule(target);
@@ -106,7 +115,10 @@ const Modal = function (view) {
   
   $('#modal-table td').click(function (event) {
     let target = new JQueryTd(event.target);
-    target.inSchedule ? target.removeClass('schedule') : target.addClass('schedule');
+
+    // v2.9 only for append
+    // target.inSchedule ? target.removeClass('schedule') : target.addClass('schedule');
+    target.addClass('schedule');
   });
 
   // $('.ui.modal').modal('show');

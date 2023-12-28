@@ -57,6 +57,15 @@ function setSheetValue(tableName, x, y, value) {
   sheet.getRange(x, y).setValue(value);
 }
 
+function setCurrentSheetValue(x, y, value) {
+  getSpreadsheet().getSheets().forEach(function (sheet, i) {
+    let name = sheet.getName();
+    if (name.includes('#')) {
+      sheet.getRange(x, y).setValue(value);
+    }
+  });
+}
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 function getGroupsValues() {
