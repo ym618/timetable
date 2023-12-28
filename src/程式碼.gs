@@ -21,9 +21,7 @@ function getSheets() {
   let result = [];
   getSpreadsheet().getSheets().forEach(function (sheet, i) {
     let name = sheet.getName();
-    if (name.includes('-')) {
       result.push(name);
-    }
   });
   return result;
 }
@@ -37,6 +35,17 @@ function getTimetableValues() {
 function getSheetDataValues(tableName) {
   let sheet = getSpreadsheet().getSheetByName(tableName);
   return JSON.stringify(sheet.getDataRange().getValues());
+}
+
+function getCurrentSheetDataValues() {
+  let result = null;
+  getSpreadsheet().getSheets().forEach(function (sheet, i) {
+    let name = sheet.getName();
+    if (name.includes('#')) {
+      return result = sheet.getDataRange().getValues();
+    }
+  });
+  return JSON.stringify(result);
 }
 
 function setTimetableValue(x, y, value) {

@@ -22,9 +22,37 @@ const Modal = function (view) {
         return false;
       }
 
-      let periods = [];
       $('.schedule').each(function (index, element) {
-        periods.push($(element).data('pid'));
+        const period = new JQueryTd(element);
+     
+        let isExist = false;
+        view.main.table.divs[sid.val()].forEach(function (div) {
+          const p = new JQueryTd(div.parent());
+          if (period.weekday === p.weekday && period.period === p.period) {
+            div.addClass('tmpSchedule');
+            return isExist = true;
+          }
+        });
+
+        if (!isExist && view.main.table.divs[sid.val()].length > 0) {
+          const newDiv = view.main.table.createDiv(new Student(view.main.table.divs[sid.val()][0].text()));
+          newDiv.addClass('tmpSchedule');
+          view.main.table.divs[sid.val()].push(newDiv);
+          view.main.table.tds[period.weekday-1][period.period-1].append(newDiv);
+          if (index >= 3) tds[period.weekday-1][period.period-1].addClass('full');
+
+          console.log(period, view.main.table.tds[period.weekday-1][period.period-1])
+          //period.save();
+        }
+      });
+
+      view.main.table.divs[sid.val()].forEach(function (div) {
+        if (div.hasClass('tmpSchedule')) {
+          div.removeClass('tmpSchedule');
+        } else {
+          //div.remove();
+          console.log(div)
+        }
       });
     }
   };
@@ -58,11 +86,11 @@ const Modal = function (view) {
           setSchedule(div.parent());
         });
         break;
-      case 'SPAN':
+      case 'SPAN': return;
         target = target.parent();
-      case 'DIV':
+      case 'DIV': return;
         target = target.parent();
-      case 'TD':
+      case 'TD': return;
         $('.ui.modal div.header').text('新增個案');
         sid.val('');
         sName.val('');
@@ -78,7 +106,7 @@ const Modal = function (view) {
   
   $('#modal-table td').click(function (event) {
     let target = new JQueryTd(event.target);
-    target.inSchedule ? target.remove('schedule') : target.addClass('schedule');
+    target.inSchedule ? target.removeClass('schedule') : target.addClass('schedule');
   });
 
   // $('.ui.modal').modal('show');

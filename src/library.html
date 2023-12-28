@@ -14,11 +14,23 @@ const GROUP_MAP = {
   'B': 'orange',
   'C': 'yellow',
   'D': 'olive',
-  'E': 'blue',
-  'F': 'violet',
-  'G': 'pink',
-  '1 by 1': 'grey',
+  'E': 'green',
+  'F': 'blue',
+  'G': 'violet',
+  'H': 'pink',
+  'I': 'brown',
+  'Z': 'grey',
   '取消': 'black',
+};
+
+let groups = {};
+const initGroup = function () {
+  GROUPS.forEach(function (element, index) {
+    let [group, sid] = element;
+    if (typeof sid === 'number') {
+      groups[sid] = group;
+    }
+  });
 };
 
 const toastr = {
@@ -37,6 +49,15 @@ const getSheetDataValues = function (sheetName) {
   return defer;
 };
 
+const getCurrentSheetDataValues = function () {
+  let defer = $.Deferred();
+  google.script.run
+    .withSuccessHandler(value => {SheetName = value; defer.resolve(value)})
+    .withFailureHandler(error => defer.reject(error))
+    .getCurrentSheetDataValues();
+  return defer;
+};
+
 const setSheetValue = function (x, y, value) {
   if(SheetName.length > 0) {
     google.script.run.setSheetValue(SheetName, x, y, value);
@@ -44,12 +65,17 @@ const setSheetValue = function (x, y, value) {
 };
 
 const Student = function (str) {
-  this.raw  = str;
-  this.id   = str.match(/^\d+/)[0];
-  this.name = str.match(/[^\d\(\)]+/)[0];
-  this.isEval = /\(E\)$/.test(str);
+  try {
+    this.raw  = str;
+    this.id   = str.match(/^\(?\d+/)[0];
+    this.name = str.match(/[^0-9\(\)]+/)[0];
+    this.isEval = /\(E\)$/.test(str);
+    this.reserved = /\^\(.+\)$/.test(str);
 
-  this.group = null;
+    this.group = null;
+  } catch (e) {
+    console.log(e, str);
+  }
 };
 
 const JQueryTd = function (td) {
@@ -60,6 +86,7 @@ const JQueryTd = function (td) {
         case 'children':    return target.children();
         case 'addClass':    return cls => target.addClass(cls);
         case 'removeClass': return cls => target.removeClass(cls);
+        case 'text':        return target.text();
 
         // td class="w1p1 w1 p1" pid, weekday, period
         case 'pid':     return target.data('pid');
