@@ -1,6 +1,8 @@
 <script>
-function main() {
+async function main() {
   console.clear();
+
+  initGroup();
 
   let view = {main: {}, modal: {}};
   view.main.table  = new Table('main-table');
@@ -8,16 +10,8 @@ function main() {
   view.modal.main  = new Modal(view);
   view.redips = new Redips(view);
 
-  let groups = {};
-  GROUPS.forEach(function (element, index) {
-    let [group, sid] = element
-    if (typeof sid === 'number') {
-      groups[sid] = group;
-    }
-  });
-
   $('#sheets').click(function () {
-    $('select.dropdown').append(`<option value="timetable">timetable</option>`);
+    $('select.dropdown').append(`<option value="timetable">測試用</option>`);
     
     let sheets = SHEETS;
     sheets.reverse().forEach(function (element, index) {
@@ -27,6 +21,7 @@ function main() {
     $('select.dropdown').dropdown();
   });
 
+  /*
   $('select.dropdown').change(async function (event) {
     let sheetName = $(event.target).val();
     if (sheetName !== '選擇表單') {
@@ -41,6 +36,14 @@ function main() {
       $('.ui.dimmer').removeClass('active');
     }
   });
+  */
+  
+  $('.ui.dimmer').addClass('active');
+
+  const timetable = JSON.parse(await getCurrentSheetDataValues());
+  view.main.table.setup(timetable);
+  view.modal.table.setup(timetable);
+  $('.ui.dimmer').removeClass('active');
 }
 $(main);
 </script>

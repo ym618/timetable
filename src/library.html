@@ -14,11 +14,23 @@ const GROUP_MAP = {
   'B': 'orange',
   'C': 'yellow',
   'D': 'olive',
-  'E': 'blue',
-  'F': 'violet',
-  'G': 'pink',
-  '1 by 1': 'grey',
+  'E': 'green',
+  'F': 'blue',
+  'G': 'violet',
+  'H': 'pink',
+  'I': 'brown',
+  'Z': 'grey',
   '取消': 'black',
+};
+
+let groups = {};
+const initGroup = function () {
+  GROUPS.forEach(function (element, index) {
+    let [group, sid] = element;
+    if (typeof sid === 'number') {
+      groups[sid] = group;
+    }
+  });
 };
 
 const toastr = {
@@ -34,6 +46,15 @@ const getSheetDataValues = function (sheetName) {
     .withSuccessHandler(value => defer.resolve(value))
     .withFailureHandler(error => defer.reject(error))
     .getSheetDataValues(sheetName);
+  return defer;
+};
+
+const getCurrentSheetDataValues = function () {
+  let defer = $.Deferred();
+  google.script.run
+    .withSuccessHandler(value => defer.resolve(value))
+    .withFailureHandler(error => defer.reject(error))
+    .getCurrentSheetDataValues();
   return defer;
 };
 
@@ -60,6 +81,7 @@ const JQueryTd = function (td) {
         case 'children':    return target.children();
         case 'addClass':    return cls => target.addClass(cls);
         case 'removeClass': return cls => target.removeClass(cls);
+        case 'text':        return target.text();
 
         // td class="w1p1 w1 p1" pid, weekday, period
         case 'pid':     return target.data('pid');
