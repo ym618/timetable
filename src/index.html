@@ -5,16 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
     <title>阿凌的課表</title>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css">
     <?!= include('stylesheet'); ?>
 
-    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.7.1/jquery.min.js"></script>
+    <script> const TABLE = JSON.parse(<?= table; ?>); </script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>
+    <?!= include('lib-redips'); ?>
     <?!= include('table'); ?>
+    <?!= include('redips'); ?>
     <?!= include('script'); ?>
   </head>
   <body>
-    <div id="my-redips">
-      <div id="left-container">
-        <table>
+    <div id="my-redips" class="ui grid">
+      <div class="sixteen wide column">
+        <button class="ui blue button">Blue</button>
+        <button class="ui blue button">Blue</button>
+        <button class="ui blue button">Blue</button>
+        <button class="ui blue button">Blue</button>
+        <button class="ui blue button">Blue</button>
+      </div>
+      <div class="sixteen wide column">
+        <table id="main-table">
           <thead>
             <tr>
               <th scope="col" class="redips-mark">&nbsp;</th>
@@ -27,7 +39,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row" class="redips-mark">13:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">10:00</th></tr>
+            <!--tr><th scope="row" class="redips-mark">13:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">10:00</th></tr>
             <tr><th scope="row" class="redips-mark">13:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">10:30</th></tr>
             <tr><th scope="row" class="redips-mark">14:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">11:00</th></tr>
             <tr><th scope="row" class="redips-mark">14:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">11:30</th></tr>
@@ -42,11 +54,120 @@
             <tr><th scope="row" class="redips-mark">19:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">17:00</th></tr>
             <tr><th scope="row" class="redips-mark">19:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">17:30</th></tr>
             <tr><th scope="row" class="redips-mark">20:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">18:00</th></tr>
-            <tr><th scope="row" class="redips-mark">20:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">18:30</th></tr>
+            <tr><th scope="row" class="redips-mark">20:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row" class="redips-mark">18:30</th></tr-->
           </tbody>
         </table>
       </div>
-      <div id="right-conatiner">
+      <div class="ui fullscreen first coupled modal">
+        <i class="close icon"></i>
+        <div class="header">新增個案</div>
+        <div class="content">
+          <div class="ui form">
+            <div class="inline fields">
+              <div class="two wide field">
+                <h3 class="header">病歷號</h3>
+              </div>
+              <div class="fourteen wide field">
+                <input type="text" placeholder="病歷號">
+              </div>
+            </div>
+            <div class="inline fields">
+              <div class="two wide field">
+                <h3 class="header">姓名</h3>
+              </div>
+              <div class="fourteen wide field">
+                <input type="text" placeholder="姓名">
+              </div>
+            </div>
+            <div class="inline fields">
+              <div class="two wide field">
+                <h3 class="header">顏色</h3>
+              </div>
+              <div class="fourteen wide field">
+                <a style="display: none;"></a>
+                <a style="height: 38px;"></a>
+                <a class="ui red empty circular label"></a>
+                <a class="ui orange empty circular label"></a>
+                <a class="ui yellow empty circular label"></a>
+                <a class="ui olive empty circular label"></a>
+                <a class="ui green empty circular label"></a>
+                <a class="ui teal empty circular label"></a>
+                <a class="ui blue empty circular label"></a>
+                <a class="ui violet empty circular label"></a>
+                <a class="ui purple empty circular label"></a>
+                <a class="ui pink empty circular label"></a>
+                <a class="ui brown empty circular label"></a>
+                <a class="ui grey empty circular label"></a>
+                <a class="ui black empty circular label"></a>
+              </div>
+            </div>
+            <div class="inline fields">
+              <div class="two wide field">
+                <h3 class="header">時段1</h3>
+              </div>
+              <div class="fourteen wide field">
+                <button class="ui blue button"></button>
+              </div>
+            </div>
+            <div class="inline fields">
+              <div class="two wide field">
+                <h3 class="header">時段2</h3>
+              </div>
+              <div class="fourteen wide field">
+                <table class="select-table">
+                  <tr><th scope="row">13:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">10:00</th></tr>
+                  <tr><th scope="row">13:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">10:30</th></tr>
+                  <tr><th scope="row">14:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">11:00</th></tr>
+                  <tr><th scope="row">14:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">11:30</th></tr>
+                  <tr><th scope="row">15:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">13:00</th></tr>
+                  <tr><th scope="row">15:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">13:30</th></tr>
+                  <tr><th scope="row">16:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">14:00</th></tr>
+                  <tr><th scope="row">16:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">14:30</th></tr>
+                  <tr><th scope="row">17:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">15:00</th></tr>
+                  <tr><th scope="row">17:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">15:30</th></tr>
+                  <tr><th scope="row">18:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">16:00</th></tr>
+                  <tr><th scope="row">18:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">16:30</th></tr>
+                  <tr><th scope="row">19:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">17:00</th></tr>
+                  <tr><th scope="row">19:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">17:30</th></tr>
+                  <tr><th scope="row">20:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">18:00</th></tr>
+                  <tr><th scope="row">20:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">18:30</th></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="ui grey deny button">取消</div>
+          <div class="ui positive right labeled icon button">確認<i class="checkmark icon"></i></div>
+        </div>
+      </div>
+      <div class="ui second coupled modal">
+        <i class="close icon"></i>
+        <div class="header">選擇時段</div>
+        <div class="content">
+          <table class="select-table">
+            <tr><th scope="row">13:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">10:00</th></tr>
+            <tr><th scope="row">13:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">10:30</th></tr>
+            <tr><th scope="row">14:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">11:00</th></tr>
+            <tr><th scope="row">14:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">11:30</th></tr>
+            <tr><th scope="row">15:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">13:00</th></tr>
+            <tr><th scope="row">15:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">13:30</th></tr>
+            <tr><th scope="row">16:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">14:00</th></tr>
+            <tr><th scope="row">16:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">14:30</th></tr>
+            <tr><th scope="row">17:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">15:00</th></tr>
+            <tr><th scope="row">17:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">15:30</th></tr>
+            <tr><th scope="row">18:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">16:00</th></tr>
+            <tr><th scope="row">18:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">16:30</th></tr>
+            <tr><th scope="row">19:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">17:00</th></tr>
+            <tr><th scope="row">19:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">17:30</th></tr>
+            <tr><th scope="row">20:00</th><td></td><td></td><td></td><td></td><td></td><th scope="row">18:00</th></tr>
+            <tr><th scope="row">20:30</th><td></td><td></td><td></td><td></td><td></td><th scope="row">18:30</th></tr>
+          </table>
+        </div>
+        <div class="actions">
+          <div class="ui grey deny button">取消</div>
+          <div class="ui positive right labeled icon button">確認<i class="checkmark icon"></i></div>
+        </div>
       </div>
     </div>
   </body>
