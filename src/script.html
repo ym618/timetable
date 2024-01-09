@@ -8,6 +8,14 @@ function main() {
   view.modal.main  = new Modal(view);
   view.redips = new Redips(view);
 
+  let groups = {};
+  GROUPS.forEach(function (element, index) {
+    let [group, sid] = element
+    if (typeof sid === 'number') {
+      groups[sid] = group;
+    }
+  });
+
   $('#sheets').click(function () {
     $('select.dropdown').append(`<option value="timetable">timetable</option>`);
     
@@ -28,8 +36,8 @@ function main() {
       $('#sheets').text(SheetName);
 
       const timetable = JSON.parse(await getSheetDataValues(SheetName));
-      view.main.table.setup(timetable);
-      view.modal.table.setup(timetable);
+      view.main.table.setup(timetable, groups);
+      view.modal.table.setup(timetable, groups);
       $('.ui.dimmer').removeClass('active');
     }
   });

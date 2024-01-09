@@ -32,30 +32,29 @@ const Table = function (tableName) {
   tds[0][4].attr('rowspan', '2');
   tds[0][5].hide();
 
-  let createDiv = function (element) {
-    let student = new Student(element);
-
+  let createDiv = function (student) {
     if (!divs[student.id]) divs[student.id] = [];
     let elementData = {
       sid:      student.id,
       index:    divs[student.id].length,
       name:     student.name,
       evaluate: +student.isEval,
+      group:    student.group,
     };
 
+    let color = GROUP_MAP[student.group];
     let div = TableName === 'main-table'
-      ? $(`<div class="redips-drag"><a class="ui red empty circular label"></a><span${student.isEval ? ' class="evaluate"' : ''}>${student.raw}</span></div>`)
+      ? $(`<div class="redips-drag"><a class="ui ${color} empty circular label"></a><span${student.isEval ? ' class="evaluate"' : ''}>${student.raw}</span></div>`)
         .data(elementData)
-      : $(`<a class="ui red empty circular label"></a>`)
+      : $(`<a class="ui ${color} empty circular label"></a>`)
         .data(elementData)
 
     REDIPS.drag.enableDrag(true, div.get(0));
     
-    divs[student.id].push(div);
     return div;
   };
 
-  this.setup = function (timetable) {
+  this.setup = function (timetable, groups) {
     for (let w = 1; w <= 5; ++w) {
       for (let p = 1; p <= 20; ++p) {
         tds[w-1][p-1].empty();
@@ -63,8 +62,11 @@ const Table = function (tableName) {
         timetable[p+1][w].split('\n').forEach(function (element, index) {
           if (element.length === 0) return;
 
-          let div = createDiv(element);
+          let student = new Student(element);
+          student.group = groups[student.id];
+          let div = createDiv(student);
 
+          divs[student.id].push(div);
           tds[w-1][p-1].append(div);
           if (index >= 3) 
             tds[w-1][p-1].addClass('full');

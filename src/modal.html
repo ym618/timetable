@@ -6,6 +6,7 @@ const Modal = function (view) {
   let sid    = view.modal.input.sid    = $('#modal-student-id input');
   let sName  = view.modal.input.sName  = $('#modal-student-name input');
   let isEval = view.modal.input.isEval = $('#modal-is-evaluate input');
+  let groups = view.modal.input.groups = $('#modal-groups .circular');
 
   let onApprove = {
     onApprove: function() {
@@ -31,7 +32,13 @@ const Modal = function (view) {
   let setSchedule = function (td) {
     let period = new JQueryTd(td);
     view.modal.table.tds[period.weekday-1][period.period-1].addClass('schedule');
-  }
+  };
+
+  let setGroup = function (group) {
+    let color = GROUP_MAP[group];
+    groups.addClass('empty');
+    $(`#modal-groups .${color}`).removeClass('empty');
+  };
 
   $('#main-table td').click(function (event) {
     $('.schedule').removeClass('schedule');
@@ -42,9 +49,10 @@ const Modal = function (view) {
         target = new JQueryDiv(target.parent());
 
         $('.ui.modal div.header').text('編輯個案');
-        sid.val(target.sid);
+        sid.val(target.sid).prop('disabled', true);
         sName.val(target.name);
         isEval.prop('checked', target.evaluate);
+        setGroup(target.group);
 
         view.main.table.divs[target.sid].forEach(function (div, index) {
           setSchedule(div.parent());
@@ -59,6 +67,7 @@ const Modal = function (view) {
         sid.val('');
         sName.val('');
         isEval.prop('checked', false);
+        groups.addClass('empty');
 
         setSchedule(target);
         break;
@@ -69,12 +78,7 @@ const Modal = function (view) {
   
   $('#modal-table td').click(function (event) {
     let target = new JQueryTd(event.target);
-    target.inSchedule ? target.remove('schedule') : target.add('schedule');
-  });
-
-  $('#modal-groups a').click(function (event) {
-    $('.circular').addClass('empty');
-    $(event.target).removeClass('empty');
+    target.inSchedule ? target.remove('schedule') : target.addClass('schedule');
   });
 
   // $('.ui.modal').modal('show');

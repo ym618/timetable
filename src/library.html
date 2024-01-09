@@ -9,6 +9,18 @@ const PERIODS = [
   '19:00', '19:30', '20:00', '20:30',
 ];
 
+const GROUP_MAP = {
+  'A': 'red',
+  'B': 'orange',
+  'C': 'yellow',
+  'D': 'olive',
+  'E': 'blue',
+  'F': 'violet',
+  'G': 'pink',
+  '1 by 1': 'grey',
+  '取消': 'black',
+};
+
 const toastr = {
   success: txt => $.toast({icon: 'success', text: txt}),
   warning: txt => $.toast({icon: 'warning', text: txt}),
@@ -36,27 +48,31 @@ const Student = function (str) {
   this.id   = str.match(/^\d+/)[0];
   this.name = str.match(/[^\d\(\)]+/)[0];
   this.isEval = /\(E\)$/.test(str);
+
+  this.group = null;
 };
 
 const JQueryTd = function (td) {
   return new Proxy($(td), {
     get: function (target, property) {
       switch (property) {
-        case 'jquery':     return target;
-        case 'children':   return target.children();
-        case 'add':        return cls => target.addClass(cls);
-        case 'remove':     return cls => target.removeClass(cls);
+        case 'jquery':      return target;
+        case 'children':    return target.children();
+        case 'addClass':    return cls => target.addClass(cls);
+        case 'removeClass': return cls => target.removeClass(cls);
 
         // td class="w1p1 w1 p1" pid, weekday, period
         case 'pid':     return target.data('pid');
         case 'weekday': return target.data('weekday');
         case 'period':  return target.data('period');
+        case 'group':   return target.data('group');
+        case 'add': return function () {};
 
         // modal
         case 'inSchedule': return target.hasClass('schedule');
         
         // operation to spreadsheet
-        case 'save': return () => {
+        case 'save': return function () {
           let w = target.data('weekday');
           let p = target.data('period');
 
@@ -83,11 +99,12 @@ const JQueryDiv = function (div) {
         case 'jquery': return target;
         case 'parent': return target.parent();
 
-        // div class="redis-drag" sid, index, name, evaluate
+        // div class="redis-drag" sid, index, name, evaluate, group
         case 'sid':      return target.data('sid');
         case 'index':    return target.data('index');
         case 'name':     return target.data('name');
         case 'evaluate': return target.data('evaluate');
+        case 'group':    return target.data('group');
       }
     }
   });

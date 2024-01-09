@@ -45,8 +45,8 @@ let Redips = function (view) {
     const moving = new JQueryDiv(rd.obj);
 
     // set full in main table
-    if (source.children.length < 4) source.remove('full');
-    if (target.children.length >= 4) target.add('full');
+    if (source.children.length < 4) source.removeClass('full');
+    if (target.children.length >= 4) target.addClass('full');
 
     // move circular in modal table
     view.modal.table.divs[moving.sid][moving.index].appendTo(view.modal.table.tds[target.weekday-1][target.period-1]);
