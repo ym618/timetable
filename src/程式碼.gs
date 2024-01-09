@@ -1,7 +1,8 @@
 function doGet(request) {
   let template = HtmlService.createTemplateFromFile('index');
-  template.table = JSON.stringify(getSheetValues('1113-1117'));
-  return template.evaluate();
+  template.table = JSON.stringify(getSheetValues('timetable'));
+  template.colors = JSON.stringify(getSheetValues('colors'));
+  return template.evaluate().setTitle('阿凌的課表');
 }
 
 function include(filename) {

@@ -1,0 +1,26 @@
+<script>
+const Modal = function () {
+  $('td').click(function (event) {
+    console.log('td', event.target);
+    let td;
+    if (event.target.tagName === 'A') {
+      $('.ui.modal div.header').text('編輯個案');
+      let str = $(event.target).parent().text();
+      $('#studentId input').val(str.match(/\d+/)[0]);
+      $('#studentName input').val(str.match(/[^\d]+/)[0]);
+      console.log(str);
+      
+      let target = $(event.target)
+      td = target.parent().parent();
+    } else {
+      $('.ui.modal div.header').text('新增個案');
+      $('#studentId input').val('');
+      $('#studentName input').val('');
+      td = $(event.target);
+    }
+    
+    $('.ui.modal').modal('show');
+  });
+  //$('.ui.modal').modal('show');
+};
+</script>

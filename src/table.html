@@ -1,6 +1,45 @@
 <script>
 const Table = function () {
-  const periods = [
+  
+  // init table
+  const tbody = $('#main-table tbody, #selection-table tbody');
+  for (let p = 1; p <= 20; ++p) {
+    let tr = $(`<tr><th scope="row" class="redips-mark">${(PERIODS[p-1])}</th></tr>`).appendTo(tbody);
+    for (let w = 1; w <= 5 ; ++w) {
+      tr.append(`<td class="w${w}p${p} w${w} p${p}" data-id="w${w}p${p}" data-weekday="${w}" data-period="${p}">`);
+    }
+  }
+
+  // disable periods
+  $(`.w1p1, .w1p2, .w1p3, .w1p4, .w2p1, .w2p2, .w2p3, .w2p4, .w3p1, .w3p2,
+     .w3p3, .w3p4, .w4p1, .w4p2, .w4p3, .w4p4, .w5p17, .w5p18, .w5p19, .w5p20`).addClass('redips-mark');
+
+  // dinner periods
+  $(`.w1p13, .w1p14, .w2p13, .w2p14, .w3p13, .w3p14, .w4p13, .w4p14`).addClass('redips-dinner');
+  
+  // big period
+  $('.w1p5').attr('rowspan', '2');
+  $('.w1p6').hide();
+
+  for (let w = 1; w <= 5; ++w) {
+    for (let p = 1; p <= 20; ++p) {
+      let mainPeriod = $(`#main-table .w${w}p${p}`);
+      let selectionPeriod = $(`#selection-table .w${w}p${p}`);
+      TABLE[p+1][w].split('\n').forEach(function (element, index) {
+        if (element.length) {
+          mainPeriod.append(`<div class="redips-drag student"><a class="ui red empty circular label"></a><span ${element.includes('(E)') ? 'class="evaluate"' : ''}>${element}</span></div>`);
+          selectionPeriod.append(`<a class="ui red empty circular label"></a>`);
+        }
+        if (index > 2) {
+          mainPeriod.addClass('full');
+        }
+      });
+    }
+  }
+};
+
+const Table_Deprecated = function () {
+  const PERIODS = [
     ['13:00', '10:00'],
     ['13:30', '10:30'],
     ['14:00', '11:00'],
@@ -20,19 +59,18 @@ const Table = function () {
   ];
 
   // init table
-  const tbody = $('#main-table tbody');
-  periods.forEach(function (period, index) {
+  PERIODS.forEach(function (period, index) {
     let tr = $(`<tr><th scope="row" class="redips-mark">${period[0]}</th></tr>`).appendTo(tbody);
-    let th = $(`<th scope="row" class="redips-mark">${period[1]}</th>`);
+    let th = $(`<th scope="row" class="redips-mark w5color">${period[1]}</th>`);
     for (let i = 0; i < 5 ; ++i) {
-      tr.append(`<td id="W${i+1}P${index+1}" class="period W${i+1} P${index+1}">`);
+      tr.append(`<td class="W${i+1}P${index+1} W${i+1} P${index+1}" data-id="W${i+1}P${index+1}" data-weekday="${i+1}" data-period="${index+1}">`);
     }
     tr.append(th);
   });
 
   // big period
-  $('#W1P1').attr('rowspan', '2');
-  $('#W1P2').hide();
+  $('.W1P1').attr('rowspan', '2');
+  $('.W1P2').hide();
 
   // dinner period
   $('.P9:not(.W5), .P10:not(.W5)').addClass('redips-dinner');
@@ -40,27 +78,19 @@ const Table = function () {
   // init student
   for (let i = 1; i <= 5; ++i) {
     for (let j = 1; j <= 16; ++j) {
-      const period = $(`#W${i}P${j}`);
-      TABLE[i === 5 ? j+1 : j+5][i].split('\n').forEach(function (element, index) {
+      let mainPeriod = $(`#main-table .W${i}P${j}`);
+      let selectionPeriod = $(`#selection-table .W${i}P${j}`);
+      let offset = i === 5 ? j+1 : j+5;
+      TABLE[offset][i].split('\n').forEach(function (element, index) {
         if (element.length) {
-          period.append(`<div class="redips-drag student"><a class="ui red empty circular label"></a><span>${element}</span></div>`);
+          mainPeriod.append(`<div class="redips-drag student"><a class="ui red empty circular label"></a><span ${element.includes('(E)') ? 'class="evaluate"' : ''}>${element}</span></div>`);
+          selectionPeriod.append(`<a class="ui red empty circular label"></a>`);
+        }
+        if (index > 2) {
+          mainPeriod.addClass('full');
         }
       });
     }
   }
-
-  // 
-  $('td').click(function (event) {
-    console.log(event.target.className);
-    $('.first.modal').modal('show');
-  });
-  $('button').click(function (event) {
-    console.log(event.target.className);
-    $('.first.modal').modal('show');
-  });
-  
-  $('.coupled.modal').modal({allowMultiple: true});
-  $('.second.modal').modal('attach events', '.first.modal .blue.button');
-  $('.first.modal').modal('show');
 };
 </script>

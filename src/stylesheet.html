@@ -1,28 +1,49 @@
 <style>
+:root {
+  --w5-color: #cdcdcd;
+  --border-grey:     #dbdbdb;
+  --disable-grey:    #e7e7e7;
+  --dinner-grey:     #f3f3f3;
+  --background-grey: #fefefe;
+}
 
 /* style */
 html,body {
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 body {
-  background-color: #fefefe;
+  background-color: var(--background-grey);
 }
 
 table {
   border-collapse: collapse;
 }
 
-th {
-  background-color: #e9e9e9;
+th, td {
+  border-style: solid;
+  border-color: var(--border-grey);
 }
 
-td {
+th {
+  background-color: var(--border-grey);
+  text-align: center;
+}
+
+#main-table td {
   vertical-align: top;
 }
 
+#main-table td.redips-mark {
+  background-color: var(--disable-grey);
+}
+
 .redips-dinner {
-  background-color: #f1f1f1;
+  background-color: var(--dinner-grey);
+}
+
+.evaluate {
+  color: red;
 }
 
 
@@ -30,24 +51,39 @@ td {
 html,body{padding:0;border:0;margin:0;display:block;width:100%;height:100%;}
 
 #my-redips {
-  margin: 5px;
+  /*margin: 1px;*/
 }
 
 #main-table {
   width: 100%;
 }
 
-.select-table th,
-.select-table td {
-  width: 60px;
+#selection-table {
+  width: 100%;
 }
 
 th, td {
-  border: 2px solid #e9e9e9;
+  border-width: 2px;
+}
+
+#main-table th {
+  width: 5%;
+}
+
+#main-table td {
+  width: 10%;
+}
+
+#main-table td:not(.full) {
+  padding-bottom: 20px;
+}
+
+#selection-table thead th:not(.empty) {
+  width: 16%;
 }
 
 .student {
-  margin: 3px;
+  margin: 3px 5px;
 }
 
 .student span {
@@ -55,37 +91,7 @@ th, td {
 }
 
 .redips-drag {
-  border-style: none !important;
-}
-
-
-
-/****
- * Colors https://kierandixon.com/google-sheets-colors/
- */
-.red {
-  border-color: #ff0000;
-}
-.orange {
-  border-color: #ff9900;
-}
-.yellow {
-  border-color: #ffff00;
-}
-.green {
-  border-color: #00ff00;
-}
-.cyan {
-  border-color: #00ffff;
-}
-.cornflowerBlue {
-  border-color: #4a86e8;
-}
-.blue {
-  border-color: #0000ff;
-}
-.purple {
-  border-color: #9900ff;
+  border-width: 0;
 }
 
 </style>
