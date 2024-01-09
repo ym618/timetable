@@ -12,101 +12,80 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>
     <script type="text/javascript" src="https://cdn.bootcss.com/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
-    <script>
-      const GROUPS = JSON.parse(<?= groups ?>);
-      const SHEETS = JSON.parse(<?= sheets ?>);
-    </script>
-    <?!= include('lib-redips'); ?>
-    <?!= include('library'); ?>
-    <?!= include('table'); ?>
-    <?!= include('modal'); ?>
-    <?!= include('redips'); ?>
     <?!= include('script'); ?>
   </head>
   <body>
-    <div id="my-redips" class="ui grid">
-      <!--div class="sixteen wide column">
-        <button class="ui blue button">Blue</button>
-        <button class="ui blue button">Blue</button>
-        <button class="ui blue button">Blue</button>
-        <button class="ui blue button">Blue</button>
-        <button class="ui blue button">Blue</button>
-      </div-->
+    <div class="ui grid">
       <div class="sixteen wide column">
-        <table id="main-table">
+        <table id="master-table">
           <thead>
             <tr>
-              <th scope="col" class="redips-mark" id="sheets"><div>更換表單</div></th>
-              <th scope="col" class="redips-mark">星期一</th>
-              <th scope="col" class="redips-mark">星期二</th>
-              <th scope="col" class="redips-mark">星期三</th>
-              <th scope="col" class="redips-mark">星期四</th>
-              <th scope="col" class="redips-mark">星期五</th>
+              <th scope="col" id="sheets"><div><!--換課表--></div></th>
+              <th scope="col" id="weekday-1">星期一</th>
+              <th scope="col" id="weekday-2">星期二</th>
+              <th scope="col" id="weekday-3">星期三</th>
+              <th scope="col" id="weekday-4">星期四</th>
+              <th scope="col" id="weekday-5">星期五</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
     </div>
-    <div class="ui fullscreen modal editor">
+    <div class="ui modal fullscreen">
       <i class="close icon"></i>
-      <div class="header">新增個案</div>
+      <div class="header">編輯個案</div>
       <div class="content">
         <div class="ui form">
           <div class="fields">
-            <div class="four wide field" id="modal-student-id">
-              <label>病歷號</label>
-              <input type="text" placeholder="病歷號">
+            <div class="four wide field">
+              <label>病歷號</label><input type="text" placeholder="病歷號" id="student-id" disabled>
             </div>
-            <div class="four wide field" id="modal-student-name">
-              <label>姓名</label>
-              <input type="text" placeholder="姓名">
+            <div class="four wide field">
+              <label>姓名</label><input type="text" placeholder="姓名" id="student-name" disabled>
             </div>
-            <div class="one wide field" id="modal-is-evaluate">
+            <div class="one wide field">
               <label>評估</label>
-              <div>
-                <div class="ui checkbox">
-                  <input type="checkbox">
-                  <label></label>
-                </div>
+              <div class="ui checkbox">
+                <input type="checkbox" id="student-evaluate" disabled><label></label>
               </div>
             </div>
-            <div class="seven wide field" id="modal-groups">
-              <label>組別</label>
-              <div>
-                <a class="ui red empty circular label"></a>
-                <a class="ui orange empty circular label"></a>
-                <a class="ui yellow empty circular label"></a>
-                <a class="ui olive empty circular label"></a>
-                <a class="ui green empty circular label"></a>
+            <div class="seven wide field">
+              <label>分級</label>
+              <div class="ui circular" id="student-level">
+                <a class="ui red empty circular label" data-color="red"></a>
+                <a class="ui orange empty circular label" data-color="orange"></a>
+                <a class="ui yellow empty circular label" data-color="yellow"></a>
+                <a class="ui olive empty circular label" data-color="olive"></a>
+                <a class="ui green empty circular label" data-color="green"></a>
                 <!--a class="ui teal empty circular label"></a-->
-                <a class="ui blue empty circular label"></a>
-                <a class="ui violet empty circular label"></a>
+                <a class="ui blue empty circular label" data-color="blue"></a>
+                <a class="ui violet empty circular label" data-color="violet"></a>
                 <!--a class="ui purple empty circular label"></a-->
-                <a class="ui pink empty circular label"></a>
-                <a class="ui brown empty circular label"></a>
-                <a class="ui grey empty circular label"></a>
-                <a class="ui black empty circular label"></a>
+                <a class="ui pink empty circular label" data-color="pink"></a>
+                <a class="ui brown empty circular label" data-color="brown"></a>
+                <a class="ui grey empty circular label" data-color="grey"></a>
+                <a class="ui black empty circular label" data-color="black"></a>
               </div>
             </div>
           </div>
-          <div class="fields">
-            <div class="sixteen wide field">
-              <label>時段</label>
-              <table id="modal-table">
-                <thead>
-                  <tr>
-                    <th scope="col">&nbsp;</th>
-                    <th scope="col">星期一</th>
-                    <th scope="col">星期二</th>
-                    <th scope="col">星期三</th>
-                    <th scope="col">星期四</th>
-                    <th scope="col">星期五</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
+        </div>
+        <div class="fields">
+          <div class="sixteen wide field">
+            <label>時段</label>
+            <table id="editor-table">
+              <thead>
+                <tr>
+                  <th scope="col">&nbsp;</th>
+                  <th scope="col">星期一</th>
+                  <th scope="col">星期二</th>
+                  <th scope="col">星期三</th>
+                  <th scope="col">星期四</th>
+                  <th scope="col">星期五</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -115,7 +94,7 @@
         <div class="ui positive right labeled icon button">確認<i class="checkmark icon"></i></div>
       </div>
     </div>
-    <div class="ui mini modal sheets">
+    <!--div class="ui mini modal sheets">
       <i class="close icon"></i>
       <div class="header">選擇表單</div>
       <div class="content">
@@ -128,7 +107,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div-->
     <div class="ui dimmer">
       <div class="ui text loader">Loading</div>
     </div>
