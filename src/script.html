@@ -1,49 +1,312 @@
 <script>
-async function main() {
-  console.clear();
+(function () {
+  const MAX_PERIOD = 20;
+  const MAX_WEEKDAY = 5;
 
-  initGroup();
+  const COLORS = {
+    'A': 'red',
+    'B': 'orange',
+    'C': 'yellow',
+    'D': 'olive',
+    'E': 'green',
+    'F': 'blue',
+    'G': 'violet',
+    'H': 'pink',
+    'I': 'brown',
+    'Z': 'grey',
+    '取消': 'black',
+  };
 
-  let view = {main: {}, modal: {}};
-  view.main.table  = new Table('main-table');
-  view.modal.table = new Table('modal-table');
-  view.modal.main  = new Modal(view);
-  view.redips = new Redips(view);
+  const LEVELS = {
+    'red':    'A',
+    'orange': 'B',
+    'yellow': 'C',
+    'olive':  'D',
+    'green':  'E',
+    'blue':   'F',
+    'violet': 'G',
+    'pink':   'H',
+    'brown':  'I',
+    'grey':   'Z',
+    'black':  '取消',
+  };
 
-  $('#sheets').click(function () {
-    $('select.dropdown').append(`<option value="timetable">測試用</option>`);
-    
-    let sheets = SHEETS;
-    sheets.reverse().forEach(function (element, index) {
-      $('select.dropdown').append(`<option value="${element}">${element}</option>`);
-    });
-    $('.ui.modal.sheets').modal('show');
-    $('select.dropdown').dropdown();
-  });
-
-  /*
-  $('select.dropdown').change(async function (event) {
-    let sheetName = $(event.target).val();
-    if (sheetName !== '選擇表單') {
-      SheetName = sheetName;
-      $('.ui.modal.sheets').modal('hide');
-      $('.ui.dimmer').addClass('active');
-      $('#sheets').text(SheetName);
-
-      const timetable = JSON.parse(await getSheetDataValues(SheetName));
-      view.main.table.setup(timetable, groups);
-      view.modal.table.setup(timetable, groups);
-      $('.ui.dimmer').removeClass('active');
-    }
-  });
-  */
+  function getCurrentSheetDataValues() {
+    let defer = $.Deferred();
+    google.script.run
+      .withSuccessHandler(value => defer.resolve(JSON.parse(value)))
+      .withFailureHandler(error => defer.reject(error))
+      .getCurrentSheetDataValues();
+    return defer;
+  }
   
-  $('.ui.dimmer').addClass('active');
+  function setCurrentSheetValue(x, y, value) {
+    google.script.run.setCurrentSheetValue(x, y, value);
+  };
 
-  const timetable = JSON.parse(await getCurrentSheetDataValues());
-  view.main.table.setup(timetable);
-  view.modal.table.setup(timetable);
-  $('.ui.dimmer').removeClass('active');
-}
-$(main);
+  function getLevels() {
+    let defer = $.Deferred();
+    google.script.run
+      .withSuccessHandler(value => {
+        let levels = {};
+        let raw = JSON.parse(value);
+        raw.forEach(function (row, index) {
+          levels[row[1]] = COLORS[row[0]];
+        });
+        return defer.resolve(levels);
+      })
+      .withFailureHandler(error => defer.reject(error))
+      .getLevels();
+    return defer;
+  }
+
+  function setLevel(id, level) {
+    google.script.run.setLevel(id, level);
+  }
+
+  let levels = {};
+  let students = {};
+
+  function setStudent(str) {
+    let id = str.match(/^\(?(\d+)/)[1];
+
+    if (!students[id]) {
+      students[id] = {
+        id:       id,
+        name:     str.match(/[^0-9\(\)]+/)[0],
+        evaluate: /\(E\)$/.test(str),
+        reserved: /^\(.+\)$/.test(str),
+        color:    levels[id],
+      };
+    }
+
+    return id;
+  }
+
+  function Course(weekday, period, manager) {
+    const that = this;
+
+    this.weekday  = weekday;
+    this.period   = period;
+    this.manager  = manager;
+    this.masterTd = null;
+    this.editorTd = null;
+
+    this.empty = function () {
+      this.masterTd.empty();
+      this.editorTd.empty();
+    };
+
+    function createSpan(id) {
+      let span = $(`<span class="student"><a class="ui ${students[id].color} empty circular label"></a></span>`);
+      span.append(`<span ${students[id].evaluate ? ' class="evaluate"' : ''}>${students[id].reserved ? '(' + id + students[id].name + ')' : id + students[id].name}</span>`);
+      span.data('student', id);
+      span.addClass(`student-${id}`);
+      return span;
+    }
+
+    function setEditor(id) {
+      let onApprove = {
+        onApprove: function() {
+          $(`#editor-table .inCourse:not(.course-${id})`).each(function (index, td) {
+            let course = that.manager[$(td).data('weekday')-1][$(td).data('period')-1];
+            course.add(id);
+            course.save();
+          });
+
+          $(`#editor-table .course-${id}:not(.inCourse)`).each(function (index, td) {
+            let course = that.manager[$(td).data('weekday')-1][$(td).data('period')-1];
+            course.remove(id);
+            course.save();
+          });
+          
+          let color = $(`#student-level .circular:not(.empty)`).data('color');
+          if (students[id].color !== color) {
+            setLevel(parseInt(id), LEVELS[color]);
+            $(`.student-${id} .circular`).removeClass(students[id].color).addClass(color);
+            students[id].color = color;
+          }
+        }
+      };
+
+      $('#student-id').val(id);
+      $('#student-name').val(students[id].name);
+      $('#student-evaluate').prop('checked', students[id].evaluate);
+
+      $(`#student-level .circular`).addClass('empty');
+      $(`#student-level .${students[id].color}`).removeClass('empty');
+
+      $('.inCourse').removeClass('inCourse');
+      $(`#editor-table .course-${id}`).addClass('inCourse');
+
+      $('.ui.modal').modal(onApprove).modal('show');
+    }
+
+    this.add = function (id) {
+      if (this.masterTd.hasClass(`student-${id}`)) {
+        return;
+      }
+
+      if ($(`#weekday-${this.weekday}`).hasClass(`course-${id}`)) {
+        $(`#master .weekday-${this.weekday}.course-${id}`).remove();
+        $(`#editor .weekday-${this.weekday}.course-${id}`).remove();
+      }
+
+      let masterSpan = createSpan(id);
+      let editorSpan = createSpan(id);
+
+      this.masterTd.addClass(`course-${id}`).append(masterSpan);
+      this.editorTd.addClass(`course-${id}`).append(editorSpan);
+      $(`#weekday-${this.weekday}`).addClass(`course-${id}`);
+
+      this.masterTd.find(`.student`).each(function (index, span) {
+        if (parseInt($(span).data('student')) > parseInt(id)) $(span).appendTo(that.masterTd);
+      });
+
+      this.editorTd.find(`.student`).each(function (index, span) {
+        if (parseInt($(span).data('student')) > parseInt(id)) $(span).appendTo(that.editorTd);
+      });
+
+      masterSpan.click(e => setEditor(id));
+    };
+
+    this.remove = function (id) {
+      this.masterTd.removeClass(`course-${id}`).find(`.student-${id}`).remove();
+      this.editorTd.removeClass(`course-${id}`).find(`.student-${id}`).remove();
+      $(`#weekday-${this.weekday}`).removeClass(`course-${id}`);
+    };
+
+    this.save = function () {
+      let results = [];
+      this.masterTd.children().each(function (index, span) {
+        let id = $(span).data('student');
+        let result = id + students[id].name + (students[id].evaluate ? '(E)' : '');
+        results.push(students[id].reserved ? `(${result})` : result);
+      });
+      setCurrentSheetValue(this.period+2, this.weekday+1, results.join('\n'));
+    };
+  }
+
+  function CourceManager() {
+    let courses = [[],[],[],[],[]];
+    
+    for (let w = 0; w < MAX_WEEKDAY ; ++w) {
+      for (let p = 0; p < MAX_PERIOD; ++p) {
+        courses[w].push(new Course(w+1, p+1, courses));
+      }
+    }
+
+    return new Proxy(courses, {
+      get: function (target, rowIndex) {
+        if (rowIndex in target) {
+          return new Proxy(target[rowIndex], {
+            get: function (row, colIndex) {
+              if (colIndex in row) {
+                return row[colIndex];
+              } else {
+                return new Course(0, 0);
+              }
+            }
+          });
+        } else {
+          return new Proxy([], {
+            get: function () {
+              return new Course(0, 0);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  function Table() {
+    const PERIODS = [
+      '10:00', '10:30', '11:00', '11:30',
+      '13:00', '13:30', '14:00', '14:30',
+      '15:00', '15:30', '16:00', '16:30',
+      '17:00', '17:30', '18:00', '18:30',
+      '19:00', '19:30', '20:00', '20:30',
+    ];
+
+    const courses = new CourceManager();
+
+    const master = $('#master-table tbody');
+    const editor = $('#editor-table tbody');
+    for (let p = 0; p < MAX_PERIOD; ++p) {
+      let masterTr = $(`<tr><th scope="row">${PERIODS[p]}</th></tr>`).appendTo(master);
+      let editorTr = $(`<tr><th scope="row">${PERIODS[p]}</th></tr>`).appendTo(editor);
+      for (let w = 0; w < MAX_WEEKDAY ; ++w) {
+        courses[w][p].masterTd = $(`<td class="weekday-${w+1}" data-weekday="${w+1}" data-period="${p+1}">`).appendTo(masterTr);
+        courses[w][p].editorTd = $(`<td class="weekday-${w+1}" data-weekday="${w+1}" data-period="${p+1}">`).appendTo(editorTr);
+
+        courses[w][p].editorTd.click(function () {
+          let td = $(this);
+          if (td.hasClass('inCourse')) {
+            td.removeClass('inCourse');
+          } else {
+            editor.find(`.weekday-${td.data('weekday')}`).removeClass('inCourse');
+            $(this).addClass('inCourse');
+          }
+        });
+      }
+    }
+    
+    // w1 - w4
+    for (let w = 0; w < 4; ++w) {
+      for (let p = 0; p < 4; ++p) {
+        courses[w][p].masterTd.addClass('mark');
+        courses[w][p].editorTd.addClass('mark');
+      }
+      courses[w][4].masterTd.addClass('dinner');
+      courses[w][4].editorTd.addClass('dinner');
+      for (let p = 12; p < 14; ++p) {
+        courses[w][p].masterTd.addClass('dinner');
+        courses[w][p].editorTd.addClass('dinner');
+      }
+      courses[w][19].masterTd.addClass('dinner');
+      courses[w][19].editorTd.addClass('dinner');
+    }
+
+    // w5
+    courses[4][0].masterTd.addClass('dinner');
+    courses[4][0].editorTd.addClass('dinner');
+    for (let p = 16; p < 20; ++p) {
+      courses[4][p].masterTd.addClass('mark');
+      courses[4][p].editorTd.addClass('mark');
+    }
+
+    $('#student-level .circular').click(function () {
+      $(`#student-level .circular`).addClass('empty');
+      $(this).removeClass('empty');
+    });
+
+    this.setup = function (timetable) {
+      for (let w = 0; w < MAX_WEEKDAY; ++w) {
+        for (let p = 0; p < MAX_PERIOD; ++p) {
+          courses[w][p].empty();
+
+          timetable[p+2][w+1].split('\n').forEach(function (str, index) {
+            if (str.length === 0) return;
+
+            let studentId = setStudent(str);
+            courses[w][p].add(studentId);
+          });
+        }
+      }
+    };
+  }
+
+  async function main() {
+    console.clear();
+    
+    const table = new Table();
+
+    $('.ui.dimmer').addClass('active');
+    levels = await getLevels();
+    table.setup(await getCurrentSheetDataValues());
+    $('.ui.dimmer').removeClass('active');
+  }
+
+  $(main);
+})();
 </script>
