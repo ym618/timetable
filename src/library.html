@@ -52,7 +52,7 @@ const getSheetDataValues = function (sheetName) {
 const getCurrentSheetDataValues = function () {
   let defer = $.Deferred();
   google.script.run
-    .withSuccessHandler(value => defer.resolve(value))
+    .withSuccessHandler(value => {SheetName = value; defer.resolve(value)})
     .withFailureHandler(error => defer.reject(error))
     .getCurrentSheetDataValues();
   return defer;
@@ -65,12 +65,17 @@ const setSheetValue = function (x, y, value) {
 };
 
 const Student = function (str) {
-  this.raw  = str;
-  this.id   = str.match(/^\d+/)[0];
-  this.name = str.match(/[^\d\(\)]+/)[0];
-  this.isEval = /\(E\)$/.test(str);
+  try {
+    this.raw  = str;
+    this.id   = str.match(/^\(?\d+/)[0];
+    this.name = str.match(/[^0-9\(\)]+/)[0];
+    this.isEval = /\(E\)$/.test(str);
+    this.reserved = /\^\(.+\)$/.test(str);
 
-  this.group = null;
+    this.group = null;
+  } catch (e) {
+    console.log(e, str);
+  }
 };
 
 const JQueryTd = function (td) {

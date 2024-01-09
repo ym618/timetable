@@ -22,32 +22,37 @@ const Modal = function (view) {
         return false;
       }
 
-      let periods = [], sample = null;
       $('.schedule').each(function (index, element) {
         const period = new JQueryTd(element);
-        
+     
         let isExist = false;
         view.main.table.divs[sid.val()].forEach(function (div) {
           const p = new JQueryTd(div.parent());
           if (period.weekday === p.weekday && period.period === p.period) {
-            sample = div;
-            console.log(11, div)
+            div.addClass('tmpSchedule');
             return isExist = true;
           }
         });
 
-        if (!isExist && sample) {
-          console.log(22, sample.text())
-          const newDiv = view.main.table.createDiv(new Student(sample.text()));
+        if (!isExist && view.main.table.divs[sid.val()].length > 0) {
+          const newDiv = view.main.table.createDiv(new Student(view.main.table.divs[sid.val()][0].text()));
+          newDiv.addClass('tmpSchedule');
           view.main.table.divs[sid.val()].push(newDiv);
           view.main.table.tds[period.weekday-1][period.period-1].append(newDiv);
-          if (index >= 3) tds[w-1][p-1].addClass('full');
-        }
+          if (index >= 3) tds[period.weekday-1][period.period-1].addClass('full');
 
-        console.log(
-          view.main.table.divs[sid.val()],
-          view.main.table.tds[period.weekday-1][period.period-1]
-        );
+          console.log(period, view.main.table.tds[period.weekday-1][period.period-1])
+          //period.save();
+        }
+      });
+
+      view.main.table.divs[sid.val()].forEach(function (div) {
+        if (div.hasClass('tmpSchedule')) {
+          div.removeClass('tmpSchedule');
+        } else {
+          //div.remove();
+          console.log(div)
+        }
       });
     }
   };

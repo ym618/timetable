@@ -44,7 +44,7 @@ const Table = function (tableName) {
 
     let color = GROUP_MAP[elementData.group];
     let div = TableName === 'main-table'
-      ? $(`<div class="redips-drag"><a class="ui ${color} empty circular label"></a><span${student.isEval ? ' class="evaluate"' : ''}>${student.raw}</span></div>`)
+      ? $(`<div class="redips-drag"><a class="ui ${color} empty circular label"></a><span ${student.isEval ? ' class="evaluate"' : ''}>${student.raw}</span></div>`)
         .data(elementData)
       : $(`<a class="ui ${color} empty circular label"></a>`)
         .data(elementData)
