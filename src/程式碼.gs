@@ -13,10 +13,6 @@ function getSpreadsheet() {
   return SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1KsSh-jMRwWYQM2WQMJS2lWn6uA5AYNALydndzqyLJVE/edit');
 }
 
-function getGroupsSpreadsheet() {
-  return SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/12Oj58fpRR4ROyVHOraRok96QwnAOK7oSYgwsFYxBX9I/edit');
-}
-
 function getSheets() {
   let result = [];
   getSpreadsheet().getSheets().forEach(function (sheet, i) {
@@ -69,7 +65,7 @@ function setCurrentSheetValue(x, y, value) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 function getGroupsValues() {
-  let sheet = getGroupsSpreadsheet().getSheetByName('個案分級');
+  let sheet = getSpreadsheet().getSheetByName('個案分級');
   return JSON.stringify(sheet.getDataRange().getValues());
 }
 
