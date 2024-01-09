@@ -1,9 +1,8 @@
 function doGet(request) {
   let template = HtmlService.createTemplateFromFile('index');
-  template.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   template.groups = getGroupsValues();
   template.sheets = JSON.stringify(getSheets());
-  return template.evaluate().setTitle('阿凌的課表');
+  return template.evaluate().setTitle('阿凌的課表').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function include(filename) {
