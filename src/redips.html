@@ -1,51 +1,58 @@
 <script>
-let Redips = function () {
-  let rd = this.rd = REDIPS.drag;
+let Redips = function (view) {
+  const logger = new Logger('redips');
+
+  const rd = this.rd = REDIPS.drag;
   rd.init('my-redips');
   rd.hover.colorTd = '#c0c0c0';
 
-  const getDuplucated = function (index, element) {
-    return element.textContent === rd.obj.textContent;
-  };
-
   rd.event.droppedBefore = function (targetCell) {
-    let source = $(rd.td.source);
-    let target = $(targetCell);
-    let div = $(rd.obj);
-    if (target.data('id') === source.data('id')) {
-      return true;
+    const source = new JQueryTd(rd.td.source);
+    const target = new JQueryTd(targetCell);
+    const movingDiv = $(rd.obj);
+
+    const getDuplucated = function (index, element) {
+      return element.textContent === rd.obj.textContent;
+    };
+
+    // duplucated student in the same period
+    const duplucatedDivs = target.children.filter(getDuplucated);
+    if (duplucatedDivs.length > 0) {
+      if (target.pid !== source.pid) {
+        toastr.error(`"${movingDiv.text()}" 已存在該堂課`);
+        return false;
+      }
     }
 
-    let duplucated = target.children().filter(getDuplucated);
-    if (duplucated.length > 0) {
-      toastr.error(`${div.text()}已存在該堂課`);
-      return false;
+    // duplucated student in the same day
+    const duplucatedDivs2 = $(`.w${target.weekday} div`).filter(getDuplucated);
+    if (duplucatedDivs2.length > 0) {
+      if (target.weekday !== source.weekday) {
+        toastr.error(`"${movingDiv.text()}" 已存在在 ${PERIODS[duplucatedDivs2.parent().data('period')-1]}`);
+        return false;
+      }
     }
 
-    duplucated = $(`.w${target.data('weekday')} div`).filter(getDuplucated);
-    if (duplucated.length > 0) {
-      let weekday = duplucated.parent().data('weekday');
-      let period = duplucated.parent().data('period');
-      toastr.error(`${div.text()}已存在在${PERIODS[period-1]}`);
-      return false;
-    }
-
-    if (rd.td.target.childNodes.length >= 4) {
+    // too much students in a period
+    if (target.children.length >= 4) {
       toastr.warning(`該時段太多人`);
     }
   };
 
   rd.event.dropped = function (targetCell) {
-    let sourceTd = $(rd.td.source);
-    let targetTd = $(targetCell);
-    let currentDiv = $(rd.obj);
+    const source = new JQueryTd(rd.td.source);
+    const target = new JQueryTd(targetCell);
+    const moving = new JQueryDiv(rd.obj);
 
-    if (sourceTd.children().length < 4) {
-      sourceTd.removeClass('full');
-    }
-    if (targetTd.children().length >= 4) {
-      targetTd.addClass('full');
-    }
+    // set full in main table
+    if (source.children.length < 4) source.remove('full');
+    if (target.children.length >= 4) target.add('full');
+
+    // move circular in modal table
+    view.modal.table.divs[moving.sid][moving.index].appendTo(view.modal.table.tds[target.weekday-1][target.period-1]);
+
+    source.save();
+    target.save();
   };
 };
 </script>

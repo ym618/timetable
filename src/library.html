@@ -1,0 +1,107 @@
+<script>
+let SheetName = '';
+
+const PERIODS = [
+  '10:00', '10:30', '11:00', '11:30',
+  '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30',
+  '17:00', '17:30', '18:00', '18:30',
+  '19:00', '19:30', '20:00', '20:30',
+];
+
+const toastr = {
+  success: txt => $.toast({icon: 'success', text: txt}),
+  warning: txt => $.toast({icon: 'warning', text: txt}),
+  error:   txt => $.toast({icon: 'error', text: txt}),
+  info:    txt => $.toast({icon: 'info', text: txt}),
+};
+
+const getSheetDataValues = function (sheetName) {
+  let defer = $.Deferred();
+  google.script.run
+    .withSuccessHandler(value => defer.resolve(value))
+    .withFailureHandler(error => defer.reject(error))
+    .getSheetDataValues(sheetName);
+  return defer;
+};
+
+const setSheetValue = function (x, y, value) {
+  if(SheetName.length > 0) {
+    google.script.run.setSheetValue(SheetName, x, y, value);
+  }
+};
+
+const Student = function (str) {
+  this.raw  = str;
+  this.id   = str.match(/^\d+/)[0];
+  this.name = str.match(/[^\d\(\)]+/)[0];
+  this.isEval = /\(E\)$/.test(str);
+};
+
+const JQueryTd = function (td) {
+  return new Proxy($(td), {
+    get: function (target, property) {
+      switch (property) {
+        case 'jquery':     return target;
+        case 'children':   return target.children();
+        case 'add':        return cls => target.addClass(cls);
+        case 'remove':     return cls => target.removeClass(cls);
+
+        // td class="w1p1 w1 p1" pid, weekday, period
+        case 'pid':     return target.data('pid');
+        case 'weekday': return target.data('weekday');
+        case 'period':  return target.data('period');
+
+        // modal
+        case 'inSchedule': return target.hasClass('schedule');
+        
+        // operation to spreadsheet
+        case 'save': return () => {
+          let w = target.data('weekday');
+          let p = target.data('period');
+
+          let result = [];
+          target.children().each(function (index, div) {
+            div = $(div);
+
+            let sid = div.data('sid');
+            let name = div.data('name');
+            let isEval = div.data('evaluate');
+            result.push(sid + name + (isEval?'(E)':''));
+          });
+          setSheetValue(p+2, w+1, result.join('\n'));
+        };
+      }
+    }
+  });
+};
+
+const JQueryDiv = function (div) {
+  return new Proxy($(div), {
+    get: function (target, property) {
+      switch (property) {
+        case 'jquery': return target;
+        case 'parent': return target.parent();
+
+        // div class="redis-drag" sid, index, name, evaluate
+        case 'sid':      return target.data('sid');
+        case 'index':    return target.data('index');
+        case 'name':     return target.data('name');
+        case 'evaluate': return target.data('evaluate');
+      }
+    }
+  });
+};
+
+const Logger = function (source) {
+  this.log = function () {
+    console.log(source, ...arguments);
+  };
+  this.json = function () {
+    console.log(source, JSON.stringify(arguments[0]));
+  };
+  this.clear = function () {
+    console.clear();
+  }
+};
+</script>

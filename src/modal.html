@@ -1,26 +1,82 @@
 <script>
-const Modal = function () {
-  $('td').click(function (event) {
-    console.log('td', event.target);
-    let td;
-    if (event.target.tagName === 'A') {
-      $('.ui.modal div.header').text('編輯個案');
-      let str = $(event.target).parent().text();
-      $('#studentId input').val(str.match(/\d+/)[0]);
-      $('#studentName input').val(str.match(/[^\d]+/)[0]);
-      console.log(str);
-      
-      let target = $(event.target)
-      td = target.parent().parent();
-    } else {
-      $('.ui.modal div.header').text('新增個案');
-      $('#studentId input').val('');
-      $('#studentName input').val('');
-      td = $(event.target);
+const Modal = function (view) {
+  const logger = new Logger('modal');
+
+  view.modal.input = {};
+  let sid    = view.modal.input.sid    = $('#modal-student-id input');
+  let sName  = view.modal.input.sName  = $('#modal-student-name input');
+  let isEval = view.modal.input.isEval = $('#modal-is-evaluate input');
+
+  let onApprove = {
+    onApprove: function() {
+      if (sid.val().length === 0) {
+        toastr.error(`病歷號不得為空`);
+        sid.focus();
+        return false;
+      }
+
+      if (sName.val().length === 0) {
+        toastr.error(`姓名不得為空`);
+        sName.focus();
+        return false;
+      }
+
+      let periods = [];
+      $('.schedule').each(function (index, element) {
+        periods.push($(element).data('pid'));
+      });
     }
-    
-    $('.ui.modal').modal('show');
+  };
+
+  let setSchedule = function (td) {
+    let period = new JQueryTd(td);
+    view.modal.table.tds[period.weekday-1][period.period-1].addClass('schedule');
+  }
+
+  $('#main-table td').click(function (event) {
+    $('.schedule').removeClass('schedule');
+        
+    let target = $(event.target)
+    switch(target.prop('tagName')) {
+      case 'A':
+        target = new JQueryDiv(target.parent());
+
+        $('.ui.modal div.header').text('編輯個案');
+        sid.val(target.sid);
+        sName.val(target.name);
+        isEval.prop('checked', target.evaluate);
+
+        view.main.table.divs[target.sid].forEach(function (div, index) {
+          setSchedule(div.parent());
+        });
+        break;
+      case 'SPAN':
+        target = target.parent();
+      case 'DIV':
+        target = target.parent();
+      case 'TD':
+        $('.ui.modal div.header').text('新增個案');
+        sid.val('');
+        sName.val('');
+        isEval.prop('checked', false);
+
+        setSchedule(target);
+        break;
+    }
+
+    $('.ui.modal.editor').modal(onApprove).modal('show');
   });
-  //$('.ui.modal').modal('show');
+  
+  $('#modal-table td').click(function (event) {
+    let target = new JQueryTd(event.target);
+    target.inSchedule ? target.remove('schedule') : target.add('schedule');
+  });
+
+  $('#modal-groups a').click(function (event) {
+    $('.circular').addClass('empty');
+    $(event.target).removeClass('empty');
+  });
+
+  // $('.ui.modal').modal('show');
 };
 </script>

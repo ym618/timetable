@@ -1,8 +1,38 @@
 <script>
 function main() {
-  let table = new Table();
-  let modal = new Modal();
-  let redips = new Redips();
+  console.clear();
+
+  let view = {main: {}, modal: {}};
+  view.main.table  = new Table('main-table');
+  view.modal.table = new Table('modal-table');
+  view.modal.main  = new Modal(view);
+  view.redips = new Redips(view);
+
+  $('#sheets').click(function () {
+    $('select.dropdown').append(`<option value="timetable">timetable</option>`);
+    
+    let sheets = SHEETS;
+    sheets.reverse().forEach(function (element, index) {
+      $('select.dropdown').append(`<option value="${element}">${element}</option>`);
+    });
+    $('.ui.modal.sheets').modal('show');
+    $('select.dropdown').dropdown();
+  });
+
+  $('select.dropdown').change(async function (event) {
+    let sheetName = $(event.target).val();
+    if (sheetName !== '選擇表單') {
+      SheetName = sheetName;
+      $('.ui.modal.sheets').modal('hide');
+      $('.ui.dimmer').addClass('active');
+      $('#sheets').text(SheetName);
+
+      const timetable = JSON.parse(await getSheetDataValues(SheetName));
+      view.main.table.setup(timetable);
+      view.modal.table.setup(timetable);
+      $('.ui.dimmer').removeClass('active');
+    }
+  });
 }
 $(main);
 </script>
